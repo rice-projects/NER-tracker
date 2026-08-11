@@ -738,40 +738,18 @@ async function createBaby() {
 
 async function joinBaby() {
 
-  const code =
-    prompt(
-      "Enter the invite code from the other parent:"
-    );
+  const code = prompt(
+    "Enter the invite code from the other parent:"
+  );
 
   if (!code) return;
 
-  const result =
-    await db
-      .from("babies")
-      .select("id")
-      .eq(
-        "invite_code",
-        code.trim()
-      )
-      .single();
+  const result = await db.rpc("join_baby", {
+    p_invite_code: code.trim()
+  });
 
   if (result.error) {
-    alert("Invalid invite code.");
-    return;
-  }
-
-  const member =
-    await db
-      .from("baby_members")
-      .insert({
-        baby_id: result.data.id,
-        user_id: user.id,
-        role: "parent",
-        invite_code: code.trim()
-      });
-
-  if (member.error) {
-    alert(member.error.message);
+    alert(result.error.message);
     return;
   }
 
