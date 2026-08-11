@@ -1,213 +1,2506 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#f7f4ef">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Baby Tracker">
-  <link rel="manifest" href="manifest.webmanifest">
+
   <title>Baby Tracker</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
-    :root{--bg:#f7f4ef;--card:#fff;--ink:#332f2b;--muted:#81786f;--rose:#d88f9c;--rose2:#f5dfe3;--blue:#86a9c4;--blue2:#e1edf5;--green:#8db39c;--green2:#e2eee6;--gold:#d4aa63;--line:#e8e1d9;--danger:#b85b62;--shadow:0 8px 24px rgba(60,48,40,.07)}
-    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
-    button,input,select{font:inherit}button{border:0;cursor:pointer}.app{max-width:760px;margin:auto;padding:env(safe-area-inset-top) 16px calc(90px + env(safe-area-inset-bottom))}
-    header{padding:18px 4px 12px;display:flex;justify-content:space-between;align-items:center}.brand h1{margin:0;font-size:28px}.brand p{margin:3px 0 0;color:var(--muted);font-size:13px}.baby-select{background:#fff;border:1px solid var(--line);border-radius:14px;padding:9px 11px}
-    .datebar{display:flex;align-items:center;justify-content:space-between;margin:10px 0 16px}.datebar button{background:#fff;border:1px solid var(--line);width:38px;height:38px;border-radius:12px}.datebar strong{font-size:17px}
-    .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat{background:var(--card);padding:15px;border-radius:18px;box-shadow:var(--shadow)}.stat .label{font-size:12px;color:var(--muted)}.stat .value{font-size:22px;font-weight:750;margin-top:5px}
-    .actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}.action{padding:18px;border-radius:20px;text-align:left;color:var(--ink);box-shadow:var(--shadow)}.action.feed{background:var(--rose2)}.action.sleep{background:var(--blue2)}.action .emoji{font-size:25px}.action b{display:block;font-size:16px;margin-top:6px}.action span{font-size:12px;color:var(--muted)}
-    .card{background:var(--card);border-radius:20px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}.card h2{font-size:17px;margin:0 0 12px}.section-head{display:flex;justify-content:space-between;align-items:center}.link{background:none;color:#9a6871;padding:4px}
-    .entry{display:flex;gap:11px;padding:12px 0;border-bottom:1px solid var(--line)}.entry:last-child{border-bottom:0}.icon{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;flex:none}.icon.feed{background:var(--rose2)}.icon.sleep{background:var(--blue2)}.entry-main{flex:1;min-width:0}.entry-title{font-weight:700}.entry-meta{font-size:12px;color:var(--muted);margin-top:3px}.entry-actions{display:flex;gap:5px}.live-pill{display:inline-block;background:#e2eee6;color:#4f7c61;padding:4px 8px;border-radius:9px;font-size:11px;font-weight:700}.mini{background:#f4f1ed;border-radius:9px;padding:6px 8px;font-size:12px}
-    .empty{text-align:center;color:var(--muted);padding:20px 5px;font-size:14px}.tabs{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:8px max(16px,calc((100vw - 760px)/2 + 16px)) calc(8px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(3,1fr);z-index:5}.tab{background:none;color:var(--muted);padding:7px}.tab.active{color:#9a6871;font-weight:700}.tab span{display:block;font-size:11px;margin-top:2px}
-    .modal{position:fixed;inset:0;background:rgba(40,35,30,.38);display:none;align-items:flex-end;z-index:20}.modal.show{display:flex}.sheet{background:var(--bg);width:100%;max-width:760px;margin:auto;border-radius:25px 25px 0 0;max-height:92vh;overflow:auto;padding:18px 16px calc(25px + env(safe-area-inset-bottom))}.handle{width:42px;height:4px;background:#d3cbc3;border-radius:10px;margin:0 auto 14px}.sheet h2{margin:0 0 15px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{margin:10px 0}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}.field input,.field select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}.seg{display:flex;background:#ebe5de;border-radius:12px;padding:3px}.seg button{flex:1;padding:9px;border-radius:9px;background:transparent;color:var(--muted)}.seg button.active{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.06)}
-    .primary{width:100%;padding:14px;border-radius:14px;background:#9a6871;color:#fff;font-weight:700;margin-top:10px}.secondary{width:100%;padding:12px;border-radius:14px;background:#fff;color:var(--ink);margin-top:8px}.danger{color:var(--danger)}
-    .hidden{display:none!important}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.dow{text-align:center;font-size:11px;color:var(--muted);padding:5px}.day{background:#fff;border-radius:10px;min-height:42px;padding:6px;font-size:12px;text-align:center}.day.has{box-shadow:inset 0 0 0 2px var(--rose2)}.day.selected{background:var(--rose2);font-weight:700}.day.muted{opacity:.35}.settings-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
-    @media(min-width:600px){.stats{grid-template-columns:repeat(4,1fr)}.actions{grid-template-columns:1fr 1fr}.modal{align-items:center;padding:20px}.sheet{border-radius:25px}}
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #f7f4ef;
+      color: #332f2b;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Display",
+        "Segoe UI",
+        sans-serif;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      max-width: 760px;
+      margin: auto;
+      padding: 20px 16px 100px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    .muted {
+      color: #81786f;
+      font-size: 13px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 16px;
+      margin: 14px 0;
+      box-shadow: 0 7px 22px rgba(0,0,0,.05);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+    }
+
+    .stat {
+      background: white;
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .stat b {
+      display: block;
+      font-size: 21px;
+      margin-top: 5px;
+    }
+
+    .quick {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .quick button {
+      border: 0;
+      border-radius: 18px;
+      padding: 18px;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    .feed-button {
+      background: #f5dfe3;
+    }
+
+    .sleep-button {
+      background: #e1edf5;
+    }
+
+    .activity-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+    }
+
+    .activity {
+      background: white;
+      border: 1px solid #e8e1d9;
+      border-radius: 15px;
+      padding: 11px 4px;
+      text-align: center;
+    }
+
+    .activity span {
+      display: block;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .entry {
+      display: flex;
+      gap: 10px;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .entry:last-child {
+      border-bottom: 0;
+    }
+
+    .entry-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 13px;
+      background: #f4f1ed;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      font-size: 19px;
+    }
+
+    .entry-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .entry-actions button {
+      border: 0;
+      background: #f3efeb;
+      border-radius: 8px;
+      padding: 6px;
+      margin-left: 3px;
+    }
+
+    .tabs {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: white;
+      border-top: 1px solid #e8e1d9;
+      padding: 9px 16px calc(9px + env(safe-area-inset-bottom));
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      z-index: 10;
+    }
+
+    .tabs button {
+      border: 0;
+      background: none;
+      color: #81786f;
+    }
+
+    .tabs button.active {
+      color: #9a6871;
+      font-weight: 700;
+    }
+
+    .tabs small {
+      display: block;
+      margin-top: 3px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      align-items: flex-end;
+      z-index: 20;
+    }
+
+    .sheet {
+      background: #f7f4ef;
+      width: 100%;
+      max-width: 760px;
+      margin: auto;
+      border-radius: 24px 24px 0 0;
+      padding: 20px 16px calc(25px + env(safe-area-inset-bottom));
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    .field {
+      margin: 11px 0;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: #81786f;
+      margin-bottom: 5px;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #e8e1d9;
+      border-radius: 12px;
+      background: white;
+    }
+
+    .field textarea {
+      min-height: 85px;
+      resize: vertical;
+    }
+
+    .segment {
+      display: flex;
+      gap: 4px;
+    }
+
+    .segment button {
+      flex: 1;
+      border: 0;
+      border-radius: 10px;
+      padding: 11px;
+      background: #e9e3dc;
+    }
+
+    .segment button.selected {
+      background: white;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+
+    .primary,
+    .secondary {
+      width: 100%;
+      padding: 14px;
+      border: 0;
+      border-radius: 13px;
+      margin-top: 8px;
+    }
+
+    .primary {
+      background: #9a6871;
+      color: white;
+    }
+
+    .secondary {
+      background: white;
+    }
+
+    .auth {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .auth-box {
+      background: white;
+      padding: 25px;
+      border-radius: 25px;
+      width: min(440px, 100%);
+      box-shadow: 0 10px 30px rgba(0,0,0,.06);
+    }
+
+    @media (min-width: 600px) {
+      .stats {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .modal {
+        align-items: center;
+        padding: 20px;
+      }
+
+      .sheet {
+        border-radius: 25px;
+      }
+    }
   </style>
 </head>
+
 <body>
-<div id="app" class="app"></div>
-<nav class="tabs">
-  <button class="tab active" data-tab="dashboard">🏠<span>Today</span></button>
-  <button class="tab" data-tab="history">📅<span>History</span></button>
-  <button class="tab" data-tab="settings">⚙️<span>Settings</span></button>
+
+<div id="root"></div>
+
+<div id="modal" class="modal">
+  <div id="sheet" class="sheet"></div>
+</div>
+
+<nav id="tabs" class="tabs" style="display:none">
+  <button data-tab="home" class="active">
+    🏠
+    <small>Today</small>
+  </button>
+
+  <button data-tab="history">
+    📅
+    <small>History</small>
+  </button>
+
+  <button data-tab="settings">
+    ⚙️
+    <small>Settings</small>
+  </button>
 </nav>
-<div id="modal" class="modal"><div class="sheet"><div class="handle"></div><div id="modalContent"></div></div></div>
+
 <script>
-const KEY='baby-tracker-v1';
-const state=JSON.parse(localStorage.getItem(KEY)||'null')||{babies:[{id:crypto.randomUUID(),name:'Baby'}],activeBaby:null,entries:[]};
-state.activeBaby ||= state.babies[0].id;
-let currentTab='dashboard', selectedDate=localDate(), historyMonth=new Date();
 
-function save(){localStorage.setItem(KEY,JSON.stringify(state))}
-function localDate(d=new Date()){return new Intl.DateTimeFormat('en-CA',{year:'numeric',month:'2-digit',day:'2-digit'}).format(d)}
-function dtInput(d=new Date()){let x=new Date(d.getTime()-d.getTimezoneOffset()*60000);return x.toISOString().slice(0,16)}
-function fmtTime(s){return new Date(s).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}
-function fmtDate(s){return new Date(s+'T12:00').toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'})}
-function dur(ms){let m=Math.max(0,Math.round(ms/60000)),h=Math.floor(m/60),r=m%60;return h?`${h}h ${r}m`:`${r}m`}
-function activeBaby(){return state.babies.find(b=>b.id===state.activeBaby)||state.babies[0]}
-function entriesFor(date){return state.entries.filter(e=>e.babyId===state.activeBaby&&localDate(new Date(e.start))===date).sort((a,b)=>new Date(b.start)-new Date(a.start))}
-function dateLabel(d){let x=new Date(d+'T12:00'),t=new Date();let today=localDate(t),y=localDate(new Date(t-864e5));return d===today?'Today':d===y?'Yesterday':x.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})}
-function totals(es){let feeds=es.filter(e=>e.type==='feed'), sleeps=es.filter(e=>e.type==='sleep');return {feeds, sleeps, oz:feeds.reduce((a,e)=>a+(Number(e.amount)||0),0), breast:feeds.filter(e=>e.method==='breast').reduce((a,e)=>a+(e.end?new Date(e.end)-new Date(e.start):Number(e.duration||0)*60000),0), sleep:sleeps.reduce((a,e)=>a+(e.end?new Date(e.end)-new Date(e.start):Number(e.duration||0)*60000),0)}}
-function render(){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===currentTab));if(currentTab==='dashboard')renderDashboard();if(currentTab==='history')renderHistory();if(currentTab==='settings')renderSettings()}
-function renderDashboard(){
- let es=entriesFor(selectedDate),t=totals(es), open=state.entries.find(e=>e.babyId===state.activeBaby&&e.active);
- document.getElementById('app').innerHTML=`
- <header><div class="brand"><h1>Baby Tracker</h1><p>${activeBaby().name}</p></div><select class="baby-select" id="babySel">${state.babies.map(b=>`<option value="${b.id}" ${b.id===state.activeBaby?'selected':''}>${b.name}</option>`).join('')}</select></header>
- <div class="datebar"><button id="prev">‹</button><strong>${dateLabel(selectedDate)}</strong><button id="next">›</button></div>
- <div class="stats">
-  <div class="stat"><div class="label">Feedings</div><div class="value">${t.feeds.length}</div></div>
-  <div class="stat"><div class="label">Bottle</div><div class="value">${t.oz%1?t.oz.toFixed(1):t.oz} oz</div></div>
-  <div class="stat"><div class="label">Breastfeeding</div><div class="value">${dur(t.breast)}</div></div>
-  <div class="stat"><div class="label">Sleep</div><div class="value">${dur(t.sleep)}</div></div>
- </div>
- <div class="actions">
-  <button class="action feed" id="addFeed"><div class="emoji">🍼</div><b>Log Feeding</b><span>Bottle or breastfeeding</span></button>
-  <button class="action sleep" id="addSleep"><div class="emoji">😴</div><b>Log Sleep</b><span>Night sleep or nap</span></button>
- </div>
- <div class="card" style="padding:10px">
-   <div class="section-head">
-     <h2 style="margin:4px 0">Quick start</h2>
-     <span style="font-size:12px;color:var(--muted)">Tap once to start tracking</span>
-   </div>
-   <div class="actions" style="margin:8px 0 0">
-     <button class="action feed" id="quickFeed"><div class="emoji">▶️🍼</div><b>Start Feeding</b><span>Choose bottle or breast</span></button>
-     <button class="action sleep" id="quickSleep"><div class="emoji">▶️😴</div><b>Start Sleep</b><span>Choose nap or night</span></button>
-   </div>
- </div>
- ${open?`<div class="card"><div class="section-head"><h2>Currently tracking</h2><button class="link" id="stopOpen">Stop</button></div><div class="entry"><div class="icon ${open.type==='feed'?'feed':'sleep'}">${open.type==='feed'?'🍼':'😴'}</div><div class="entry-main"><div class="entry-title">${open.type==='feed'?(open.method==='breast'?'Breastfeeding':'Bottle feeding'):(open.category==='night'?'Night sleep':'Nap')}</div><div class="entry-meta">Started ${fmtTime(open.start)} • ${dur(Date.now()-new Date(open.start))}</div></div></div></div>`:''}
- <div class="card"><div class="section-head"><h2>Today's log</h2><button class="link" id="allHistory">View history</button></div>${es.length?es.map(entryHTML).join(''):'<div class="empty">Nothing logged for this day yet.</div>'}</div>`;
- document.getElementById('babySel').onchange=e=>{state.activeBaby=e.target.value;save();render()};
- document.getElementById('prev').onclick=()=>{selectedDate=shiftDate(selectedDate,-1);render()};
- document.getElementById('next').onclick=()=>{selectedDate=shiftDate(selectedDate,1);render()};
- document.getElementById('addFeed').onclick=()=>openFeed();
- document.getElementById('addSleep').onclick=()=>openSleep();
- document.getElementById('quickFeed').onclick=()=>quickStart('feed');
- document.getElementById('quickSleep').onclick=()=>quickStart('sleep');
- document.getElementById('allHistory').onclick=()=>{currentTab='history';render()};
- if(open)document.getElementById('stopOpen').onclick=()=>stopEntry(open.id);
+const SUPABASE_URL =
+  "https://wetenneatwdebycegdbv.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_F2FccdnlI-kbd3LO2qsI6A_TkG_cyD5";
+
+const db = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let user = null;
+let babies = [];
+let baby = null;
+let entries = [];
+let currentTab = "home";
+let selectedDate = getLocalDate();
+
+function getLocalDate(date = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(date);
 }
-function shiftDate(s,n){let d=new Date(s+'T12:00');d.setDate(d.getDate()+n);return localDate(d)}
-function entryHTML(e){let detail=e.type==='feed'?(e.method==='bottle'?`Bottle • ${e.source==='formula'?'Formula':'Breast milk'} • ${e.amount||0} oz`:`Breast • ${e.side==='both'?'Both':e.side} • ${dur(e.end?new Date(e.end)-new Date(e.start):Number(e.duration||0)*60000)}`):(e.category==='night'?'Night sleep':'Nap')+` • ${dur(e.end?new Date(e.end)-new Date(e.start):Number(e.duration||0)*60000)}`;return `<div class="entry"><div class="icon ${e.type}">${e.type==='feed'?'🍼':'😴'}</div><div class="entry-main"><div class="entry-title">${e.type==='feed'?(e.method==='breast'?'Breastfeeding':'Bottle feeding'):(e.category==='night'?'Night sleep':'Nap')}</div><div class="entry-meta">${fmtTime(e.start)}${e.end?'–'+fmtTime(e.end):''} • ${detail}</div></div><div class="entry-actions"><button class="mini" onclick="editEntry('${e.id}')">Edit</button><button class="mini" onclick="deleteEntry('${e.id}')">×</button></div></div>`}
 
-function quickStart(type){
-  const existing=state.entries.find(e=>e.babyId===state.activeBaby&&e.active);
-  if(existing){
-    if(existing.type===type){ stopEntry(existing.id); return; }
-    if(confirm(`Baby is currently tracking ${existing.type==='feed'?'a feeding':'sleep'}. Stop it and start ${type==='feed'?'a feeding':'sleep'}?`)){
-      stopEntry(existing.id);
-    } else return;
+function dateTimeInput(date = new Date()) {
+  return new Date(
+    date.getTime() - date.getTimezoneOffset() * 60000
+  ).toISOString().slice(0,16);
+}
+
+function displayTime(value) {
+  return new Date(value).toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit"
+  });
+}
+
+function duration(milliseconds) {
+  const minutes = Math.max(
+    0,
+    Math.round(milliseconds / 60000)
+  );
+
+  if (minutes >= 60) {
+    return (
+      Math.floor(minutes / 60) +
+      "h " +
+      (minutes % 60) +
+      "m"
+    );
   }
-  if(type==='feed') quickFeedChoices(); else quickSleepChoices();
-}
-function quickFeedChoices(){
-  showModal(`<h2>Start Feeding</h2>
-    <p style="color:var(--muted);font-size:13px">Choose what you're starting. The app will save the exact start time now.</p>
-    <button class="primary" id="startBreast">🤱 Breastfeeding</button>
-    <button class="secondary" id="startBottle">🍼 Bottle</button>
-    <button class="secondary" id="cancel">Cancel</button>`);
-  document.getElementById('startBreast').onclick=()=>startLiveFeed('breast');
-  document.getElementById('startBottle').onclick=()=>startLiveFeed('bottle');
-  document.getElementById('cancel').onclick=closeModal;
-}
-function quickSleepChoices(){
-  showModal(`<h2>Start Sleep</h2>
-    <p style="color:var(--muted);font-size:13px">Choose nap or night sleep. The app will save the exact start time now.</p>
-    <button class="primary" id="startNap">☀️ Start Nap</button>
-    <button class="secondary" id="startNight">🌙 Start Night Sleep</button>
-    <button class="secondary" id="cancel">Cancel</button>`);
-  document.getElementById('startNap').onclick=()=>startLiveSleep('nap');
-  document.getElementById('startNight').onclick=()=>startLiveSleep('night');
-  document.getElementById('cancel').onclick=closeModal;
-}
-function startLiveFeed(method){
-  const e={id:crypto.randomUUID(),babyId:state.activeBaby,type:'feed',method,
-    start:new Date().toISOString(),end:'',source:method==='bottle'?'breastmilk':'',
-    amount:0,side:method==='breast'?'both':'',duration:0,active:true};
-  state.entries.push(e);save();closeModal();selectedDate=localDate(new Date());render();
-}
-function startLiveSleep(category){
-  const e={id:crypto.randomUUID(),babyId:state.activeBaby,type:'sleep',category,
-    start:new Date().toISOString(),end:'',duration:0,active:true};
-  state.entries.push(e);save();closeModal();selectedDate=localDate(new Date());render();
+
+  return minutes + "m";
 }
 
-function openFeed(existing=null){
- let e=existing||{start:dtInput(),end:'',method:'bottle',source:'breastmilk',amount:'',side:'both',duration:''};
- showModal(`<h2>${existing?'Edit':'Log'} Feeding</h2>
- <div class="field"><label>Type</label><div class="seg" id="feedType"><button class="${e.method==='bottle'?'active':''}" data-v="bottle">🍼 Bottle</button><button class="${e.method==='breast'?'active':''}" data-v="breast">🤱 Breast</button></div></div>
- <div class="grid2"><div class="field"><label>Start</label><input id="start" type="datetime-local" value="${e.start}"></div><div class="field"><label>End</label><input id="end" type="datetime-local" value="${e.end||''}"></div></div>
- <div id="feedFields"></div><button class="primary" id="saveEntry">Save Feeding</button><button class="secondary" id="cancel">Cancel</button>`);
- let method=e.method;function fields(){document.getElementById('feedFields').innerHTML=method==='bottle'?`<div class="grid2"><div class="field"><label>Amount (oz)</label><input id="amount" type="number" step=".1" min="0" value="${e.amount||''}"></div><div class="field"><label>Milk</label><select id="source"><option value="breastmilk" ${e.source==='breastmilk'?'selected':''}>Breast milk</option><option value="formula" ${e.source==='formula'?'selected':''}>Formula</option></select></div></div>`:`<div class="field"><label>Breast</label><div class="seg" id="side"><button class="${e.side==='left'?'active':''}" data-v="left">Left</button><button class="${e.side==='right'?'active':''}" data-v="right">Right</button><button class="${e.side==='both'?'active':''}" data-v="both">Both</button></div></div><div class="field"><label>If you don't have start/end times, enter duration (minutes)</label><input id="duration" type="number" min="0" value="${e.duration||''}"></div>`}
- document.querySelectorAll('#feedType button').forEach(b=>b.onclick=()=>{method=b.dataset.v;document.querySelectorAll('#feedType button').forEach(x=>x.classList.toggle('active',x===b));fields()});fields();
- document.getElementById('saveEntry').onclick=()=>{let start=document.getElementById('start').value;if(!start)return alert('Please enter a start time.');let end=document.getElementById('end').value;let obj={...(existing||{}),id:existing?.id||crypto.randomUUID(),babyId:state.activeBaby,type:'feed',method,start:new Date(start).toISOString(),end:end?new Date(end).toISOString():'',source:method==='bottle'?document.getElementById('source').value:'',amount:method==='bottle'?Number(document.getElementById('amount').value||0):0,side:method==='breast'?document.querySelector('#side .active')?.dataset.v||'both':'',duration:method==='breast'?Number(document.getElementById('duration').value||0):0,active:false};upsert(obj);closeModal();};
- document.getElementById('cancel').onclick=closeModal;
+function getDetails(entry) {
+  return entry.details || {};
 }
-function openSleep(existing=null){
- let e=existing||{start:dtInput(),end:'',category:'nap',duration:''};
- showModal(`<h2>${existing?'Edit':'Log'} Sleep</h2><div class="field"><label>Type</label><div class="seg" id="sleepType"><button class="${e.category==='nap'?'active':''}" data-v="nap">☀️ Nap</button><button class="${e.category==='night'?'active':''}" data-v="night">🌙 Night</button></div></div><div class="grid2"><div class="field"><label>Start</label><input id="start" type="datetime-local" value="${e.start}"></div><div class="field"><label>End</label><input id="end" type="datetime-local" value="${e.end||''}"></div></div><div class="field"><label>If you don't have start/end times, enter duration (minutes)</label><input id="duration" type="number" min="0" value="${e.duration||''}"></div><button class="primary" id="saveEntry">Save Sleep</button><button class="secondary" id="cancel">Cancel</button>`);
- let category=e.category;document.querySelectorAll('#sleepType button').forEach(b=>b.onclick=()=>{category=b.dataset.v;document.querySelectorAll('#sleepType button').forEach(x=>x.classList.toggle('active',x===b))});
- document.getElementById('saveEntry').onclick=()=>{let start=document.getElementById('start').value;if(!start)return alert('Please enter a start time.');let end=document.getElementById('end').value;upsert({...e,id:existing?.id||crypto.randomUUID(),babyId:state.activeBaby,type:'sleep',category,start:new Date(start).toISOString(),end:end?new Date(end).toISOString():'',duration:Number(document.getElementById('duration').value||0),active:false});closeModal();};
- document.getElementById('cancel').onclick=closeModal;
-}
-function upsert(e){let i=state.entries.findIndex(x=>x.id===e.id);if(i>=0)state.entries[i]=e;else state.entries.push(e);save();render()}
-function editEntry(id){let e=state.entries.find(x=>x.id===id);e.type==='feed'?openFeed(e):openSleep(e)}
-function deleteEntry(id){if(confirm('Delete this entry?')){state.entries=state.entries.filter(e=>e.id!==id);save();render()}}
-function stopEntry(id){
- let e=state.entries.find(x=>x.id===id);
- if(!e)return;
- e.end=new Date().toISOString(); e.active=false;
- save();
- if(e.type==='feed'){
-   showModal(`<h2>Feeding finished</h2>
-     <p style="color:var(--muted);font-size:13px">Started ${fmtTime(e.start)} • Finished ${fmtTime(e.end)} • ${dur(new Date(e.end)-new Date(e.start))}</p>
-     ${e.method==='bottle'
-       ?`<div class="field"><label>Amount (oz)</label><input id="amount" type="number" min="0" step=".1" placeholder="e.g. 3.5"></div>
-          <div class="field"><label>Milk</label><select id="source"><option value="breastmilk">Breast milk</option><option value="formula">Formula</option></select></div>`
-       :`<div class="field"><label>Breast</label><div class="seg" id="side"><button class="active" data-v="both">Both</button><button data-v="left">Left</button><button data-v="right">Right</button></div></div>`}
-     <button class="primary" id="finishSave">Save Feeding</button>
-     <button class="secondary" id="cancel">Cancel</button>`);
-   if(e.method==='breast')document.querySelectorAll('#side button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#side button').forEach(x=>x.classList.remove('active'));b.classList.add('active')});
-   document.getElementById('finishSave').onclick=()=>{
-     if(e.method==='bottle'){e.amount=Number(document.getElementById('amount').value||0);e.source=document.getElementById('source').value}
-     else e.side=document.querySelector('#side .active')?.dataset.v||'both';
-     save();closeModal();render();
-   };
- }else{
-   showModal(`<h2>Sleep finished</h2>
-     <p style="color:var(--muted);font-size:13px">Started ${fmtTime(e.start)} • Finished ${fmtTime(e.end)} • ${dur(new Date(e.end)-new Date(e.start))}</p>
-     <button class="primary" id="finishSave">Save Sleep</button>
-     <button class="secondary" id="cancel">Cancel</button>`);
-   document.getElementById('finishSave').onclick=()=>{save();closeModal();render()};
- }
- document.getElementById('cancel').onclick=()=>{closeModal();render()};
-}
-function showModal(html){document.getElementById('modalContent').innerHTML=html;document.getElementById('modal').classList.add('show')}
-function closeModal(){document.getElementById('modal').classList.remove('show')}
-document.getElementById('modal').onclick=e=>{if(e.target.id==='modal')closeModal()}
 
-function renderHistory(){
- let y=historyMonth.getFullYear(),m=historyMonth.getMonth(),first=new Date(y,m,1),days=new Date(y,m+1,0).getDate(),start=first.getDay();
- let cells='';for(let i=0;i<start;i++)cells+=`<div class="day muted"></div>`;for(let d=1;d<=days;d++){let ds=localDate(new Date(y,m,d)),has=state.entries.some(e=>e.babyId===state.activeBaby&&localDate(new Date(e.start))===ds);cells+=`<button class="day ${has?'has':''} ${ds===selectedDate?'selected':''}" onclick="pickHistory('${ds}')">${d}</button>`}
- let es=entriesFor(selectedDate),t=totals(es);
- document.getElementById('app').innerHTML=`<header><div class="brand"><h1>History</h1><p>${activeBaby().name}</p></div></header><div class="card"><div class="section-head"><button class="mini" id="pm">‹</button><h2>${historyMonth.toLocaleDateString([],{month:'long',year:'numeric'})}</h2><button class="mini" id="nm">›</button></div><div class="calendar">${['S','M','T','W','T','F','S'].map(x=>`<div class="dow">${x}</div>`).join('')}${cells}</div></div><div class="card"><h2>${dateLabel(selectedDate)}</h2><div class="stats"><div class="stat"><div class="label">Feedings</div><div class="value">${t.feeds.length}</div></div><div class="stat"><div class="label">Bottle</div><div class="value">${t.oz%1?t.oz.toFixed(1):t.oz} oz</div></div><div class="stat"><div class="label">Breast</div><div class="value">${dur(t.breast)}</div></div><div class="stat"><div class="label">Sleep</div><div class="value">${dur(t.sleep)}</div></div></div>${es.length?es.map(entryHTML).join(''):'<div class="empty">No entries for this day.</div>'}</div>`;
- document.getElementById('pm').onclick=()=>{historyMonth.setMonth(historyMonth.getMonth()-1);renderHistory()};document.getElementById('nm').onclick=()=>{historyMonth.setMonth(historyMonth.getMonth()+1);renderHistory()};
+function entriesForDate() {
+  return entries.filter(entry =>
+    getLocalDate(new Date(entry.start_at)) === selectedDate
+  );
 }
-function pickHistory(ds){selectedDate=ds;historyMonth=new Date(ds+'T12:00');renderHistory()}
-function renderSettings(){
- document.getElementById('app').innerHTML=`<header><div class="brand"><h1>Settings</h1><p>Manage your tracker</p></div></header>
- <div class="card"><h2>Babies</h2>${state.babies.map(b=>`<div class="settings-row"><span>${b.name}</span><button class="mini" onclick="renameBaby('${b.id}')">Edit</button></div>`).join('')}<button class="secondary" id="addBaby">+ Add another baby</button></div>
- <div class="card"><h2>Data</h2><button class="secondary" id="export">Export data</button><button class="secondary" id="importBtn">Import data</button><input class="hidden" id="file" type="file" accept=".json"><button class="secondary danger" id="clear">Delete all data</button></div>
- <div class="card"><h2>About</h2><p style="color:var(--muted);font-size:13px;line-height:1.5">Baby Tracker stores your entries on this device. Feeding and sleep duration is calculated automatically from start/end times, with manual duration entry available when needed.</p></div>`;
- document.getElementById('addBaby').onclick=()=>{let n=prompt('Baby name?');if(n?.trim()){state.babies.push({id:crypto.randomUUID(),name:n.trim()});state.activeBaby=state.babies.at(-1).id;save();render()}};
- document.getElementById('export').onclick=()=>{let blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='baby-tracker-backup.json';a.click();URL.revokeObjectURL(a.href)};
- document.getElementById('importBtn').onclick=()=>document.getElementById('file').click();
- document.getElementById('file').onchange=async ev=>{try{let data=JSON.parse(await ev.target.files[0].text());if(data.babies&&data.entries){Object.assign(state,data);save();render();alert('Data imported.')}}catch{alert('That file could not be imported.')}};
- document.getElementById('clear').onclick=()=>{if(confirm('Delete all babies and entries? This cannot be undone.')){localStorage.removeItem(KEY);location.reload()}};
+
+function icon(type) {
+  return {
+    feed: "🍼",
+    sleep: "😴",
+    diaper: "🧷",
+    medication: "💊",
+    bath: "🛁",
+    play: "🧸",
+    mood: "😊"
+  }[type] || "•";
 }
-function renameBaby(id){let b=state.babies.find(x=>x.id===id),n=prompt('Baby name:',b.name);if(n?.trim()){b.name=n.trim();save();render()}}
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{currentTab=b.dataset.tab;render()});
-render();
+
+function entryTitle(entry) {
+
+  const d = getDetails(entry);
+
+  if (entry.type === "feed") {
+    return d.method === "breast"
+      ? "Breastfeeding"
+      : "Bottle feeding";
+  }
+
+  if (entry.type === "sleep") {
+    return d.category === "night"
+      ? "Night sleep"
+      : "Nap";
+  }
+
+  if (entry.type === "diaper") {
+    if (d.kind === "both") return "Wet + Dirty";
+    if (d.kind === "wet") return "Wet diaper";
+    return "Dirty diaper";
+  }
+
+  if (entry.type === "medication") {
+    return d.name || "Medication";
+  }
+
+  if (entry.type === "bath") return "Bath";
+  if (entry.type === "play") return "Play";
+
+  return d.mood || "Mood";
+}
+
+function entryMeta(entry) {
+
+  const d = getDetails(entry);
+
+  let text = displayTime(entry.start_at);
+
+  if (entry.end_at) {
+    text += " – " + displayTime(entry.end_at);
+  }
+
+  if (entry.type === "feed") {
+
+    if (d.method === "bottle") {
+      text +=
+        " • " +
+        (d.amount || 0) +
+        " oz • " +
+        (d.source === "formula"
+          ? "Formula"
+          : "Breast milk");
+    } else {
+      text +=
+        " • " +
+        (d.side || "Both") +
+        " • " +
+        duration(
+          (entry.end_at
+            ? new Date(entry.end_at)
+            : new Date()) -
+          new Date(entry.start_at)
+        );
+    }
+  }
+
+  if (entry.type === "sleep") {
+    text +=
+      " • " +
+      duration(
+        (entry.end_at
+          ? new Date(entry.end_at)
+          : new Date()) -
+        new Date(entry.start_at)
+      );
+  }
+
+  if (entry.type === "medication") {
+    text +=
+      " • " +
+      (d.dose || "") +
+      " " +
+      (d.unit || "");
+  }
+
+  if (entry.notes) {
+    text += " • " + entry.notes;
+  }
+
+  return text;
+}
+
+function entryHTML(entry) {
+
+  return `
+    <div class="entry">
+
+      <div class="entry-icon">
+        ${icon(entry.type)}
+      </div>
+
+      <div class="entry-main">
+
+        <b>${entryTitle(entry)}</b>
+
+        <div class="muted">
+          ${entryMeta(entry)}
+        </div>
+
+      </div>
+
+      <div class="entry-actions">
+
+        <button
+          onclick="editEntry('${entry.id}')">
+          Edit
+        </button>
+
+        <button
+          onclick="deleteEntry('${entry.id}')">
+          ×
+        </button>
+
+      </div>
+
+    </div>
+  `;
+}
+
+async function loadData() {
+
+  const babiesResult =
+    await db
+      .from("babies")
+      .select("*")
+      .order("created_at");
+
+  if (babiesResult.error) {
+    alert(babiesResult.error.message);
+    return;
+  }
+
+  babies = babiesResult.data || [];
+
+  baby = babies[0] || null;
+
+  if (!baby) {
+    entries = [];
+    return;
+  }
+
+  const entriesResult =
+    await db
+      .from("baby_entries")
+      .select("*")
+      .eq("baby_id", baby.id)
+      .order("start_at", {
+        ascending: false
+      });
+
+  if (!entriesResult.error) {
+    entries = entriesResult.data || [];
+  }
+}
+
+function showAuth() {
+
+  tabs.style.display = "none";
+
+  root.innerHTML = `
+
+    <div class="auth">
+
+      <div class="auth-box">
+
+        <div style="font-size:42px">
+          👶
+        </div>
+
+        <h1>Baby Tracker</h1>
+
+        <p class="muted">
+          Shared feeding, sleep and baby-care tracking.
+        </p>
+
+        <div class="field">
+          <label>Email</label>
+          <input
+            id="email"
+            type="email"
+            autocomplete="email">
+        </div>
+
+        <div class="field">
+          <label>Password</label>
+          <input
+            id="password"
+            type="password"
+            autocomplete="current-password">
+        </div>
+
+        <button
+          class="primary"
+          onclick="signIn()">
+          Sign in
+        </button>
+
+        <button
+          class="secondary"
+          onclick="signUp()">
+          Create account
+        </button>
+
+        <p
+          id="authMessage"
+          class="muted">
+        </p>
+
+      </div>
+
+    </div>
+  `;
+}
+
+async function signIn() {
+
+  const result =
+    await db.auth.signInWithPassword({
+      email: email.value,
+      password: password.value
+    });
+
+  if (result.error) {
+    authMessage.textContent =
+      result.error.message;
+  }
+}
+
+async function signUp() {
+
+  const result =
+    await db.auth.signUp({
+      email: email.value,
+      password: password.value
+    });
+
+  if (result.error) {
+    authMessage.textContent =
+      result.error.message;
+  } else {
+    authMessage.textContent =
+      "Account created. Check your email if confirmation is required.";
+  }
+}
+
+function showBabySetup() {
+
+  root.innerHTML = `
+
+    <div class="auth">
+
+      <div class="auth-box">
+
+        <h1>👶 Set up baby</h1>
+
+        <p class="muted">
+          Create the baby profile for your family.
+        </p>
+
+        <div class="field">
+
+          <label>
+            Baby name
+          </label>
+
+          <input
+            id="newBabyName"
+            placeholder="Baby">
+
+        </div>
+
+        <button
+          class="primary"
+          onclick="createBaby()">
+          Create baby
+        </button>
+
+        <button
+          class="secondary"
+          onclick="joinBaby()">
+          Join with invite code
+        </button>
+
+      </div>
+
+    </div>
+  `;
+}
+
+async function createBaby() {
+
+  const result =
+    await db
+      .from("babies")
+      .insert({
+        name:
+          newBabyName.value ||
+          "Baby",
+
+        created_by:
+          user.id
+      })
+      .select()
+      .single();
+
+  if (result.error) {
+    alert(result.error.message);
+    return;
+  }
+
+  await loadData();
+
+  startApp();
+}
+
+async function joinBaby() {
+
+  const code =
+    prompt(
+      "Enter the invite code from the other parent:"
+    );
+
+  if (!code) return;
+
+  const result =
+    await db
+      .from("babies")
+      .select("id")
+      .eq(
+        "invite_code",
+        code.trim()
+      )
+      .single();
+
+  if (result.error) {
+    alert("Invalid invite code.");
+    return;
+  }
+
+  const member =
+    await db
+      .from("baby_members")
+      .insert({
+        baby_id: result.data.id,
+        user_id: user.id,
+        role: "parent",
+        invite_code: code.trim()
+      });
+
+  if (member.error) {
+    alert(member.error.message);
+    return;
+  }
+
+  await loadData();
+
+  startApp();
+}
+
+function startApp() {
+
+  tabs.style.display = "grid";
+
+  render();
+
+  setInterval(
+    refreshEntries,
+    5000
+  );
+}
+
+async function refreshEntries() {
+
+  if (!baby) return;
+
+  const result =
+    await db
+      .from("baby_entries")
+      .select("*")
+      .eq("baby_id", baby.id)
+      .order("start_at", {
+        ascending: false
+      });
+
+  if (!result.error) {
+    entries = result.data || [];
+    render();
+  }
+}
+
+function render() {
+
+  if (currentTab === "home") {
+    renderHome();
+  }
+
+  if (currentTab === "history") {
+    renderHistory();
+  }
+
+  if (currentTab === "settings") {
+    renderSettings();
+  }
+
+  document
+    .querySelectorAll(".tabs button")
+    .forEach(button => {
+
+      button.classList.toggle(
+        "active",
+        button.dataset.tab === currentTab
+      );
+
+    });
+}
+
+function renderHome() {
+
+  const today =
+    entriesForDate();
+
+  const feeds =
+    today.filter(
+      e => e.type === "feed"
+    );
+
+  const sleeps =
+    today.filter(
+      e => e.type === "sleep"
+    );
+
+  const bottleOunces =
+    feeds.reduce(
+      (total, entry) =>
+        total +
+        (
+          Number(
+            getDetails(entry).amount
+          ) || 0
+        ),
+      0
+    );
+
+  const sleepTime =
+    sleeps.reduce(
+      (total, entry) =>
+        total +
+        (
+          (entry.end_at
+            ? new Date(entry.end_at)
+            : new Date()) -
+          new Date(entry.start_at)
+        ),
+      0
+    );
+
+  const active =
+    entries.find(
+      e =>
+        !e.end_at &&
+        (
+          e.type === "feed" ||
+          e.type === "sleep"
+        )
+    );
+
+  root.innerHTML = `
+
+    <main class="app">
+
+      <div class="row">
+
+        <div>
+          <h1>Baby Tracker</h1>
+
+          <span class="muted">
+            ${baby.name}
+          </span>
+        </div>
+
+        <select id="babySelect">
+
+          ${babies.map(
+            b =>
+              `<option value="${b.id}">
+                ${b.name}
+              </option>`
+          ).join("")}
+
+        </select>
+
+      </div>
+
+      <div
+        class="row"
+        style="margin:14px 0">
+
+        <button
+          onclick="changeDate(-1)">
+          ‹
+        </button>
+
+        <b>
+          ${
+            selectedDate === getLocalDate()
+              ? "Today"
+              : selectedDate
+          }
+        </b>
+
+        <button
+          onclick="changeDate(1)">
+          ›
+        </button>
+
+      </div>
+
+      <div class="stats">
+
+        <div class="stat">
+          Feedings
+          <b>${feeds.length}</b>
+        </div>
+
+        <div class="stat">
+          Bottle
+          <b>${bottleOunces} oz</b>
+        </div>
+
+        <div class="stat">
+          Sleep
+          <b>${duration(sleepTime)}</b>
+        </div>
+
+        <div class="stat">
+          Entries
+          <b>${today.length}</b>
+        </div>
+
+      </div>
+
+      <div class="quick">
+
+        <button
+          class="feed-button"
+          onclick="startTracking('feed')">
+
+          ▶️ 🍼
+
+          <br>
+
+          ${
+            active?.type === "feed"
+              ? "Stop"
+              : "Start"
+          }
+          Feeding
+
+        </button>
+
+        <button
+          class="sleep-button"
+          onclick="startTracking('sleep')">
+
+          ▶️ 😴
+
+          <br>
+
+          ${
+            active?.type === "sleep"
+              ? "Stop"
+              : "Start"
+          }
+          Sleep
+
+        </button>
+
+      </div>
+
+      <div class="card">
+
+        <b>
+          Quick log
+        </b>
+
+        <div class="activity-grid">
+
+          <button
+            class="activity"
+            onclick="simpleForm('diaper')">
+
+            🧷
+            <span>Diaper</span>
+
+          </button>
+
+          <button
+            class="activity"
+            onclick="simpleForm('medication')">
+
+            💊
+            <span>Medicine</span>
+
+          </button>
+
+          <button
+            class="activity"
+            onclick="simpleForm('bath')">
+
+            🛁
+            <span>Bath</span>
+
+          </button>
+
+          <button
+            class="activity"
+            onclick="simpleForm('play')">
+
+            🧸
+            <span>Play</span>
+
+          </button>
+
+          <button
+            class="activity"
+            onclick="simpleForm('mood')">
+
+            😊
+            <span>Mood</span>
+
+          </button>
+
+        </div>
+
+      </div>
+
+      ${
+        active
+          ? `
+            <div class="card">
+
+              <b>
+                Currently tracking:
+              </b>
+
+              ${entryTitle(active)}
+
+              <button
+                onclick="stopTracking('${active.id}')">
+
+                Stop
+
+              </button>
+
+            </div>
+          `
+          : ""
+      }
+
+      <div class="card">
+
+        <div class="row">
+
+          <b>
+            Today's log
+          </b>
+
+          <button
+            onclick="
+              currentTab='history';
+              render();
+            ">
+
+            History
+
+          </button>
+
+        </div>
+
+        ${
+          today.length
+            ? today.map(entryHTML).join("")
+            : `
+              <div
+                class="muted"
+                style="
+                  padding:20px;
+                  text-align:center
+                ">
+
+                Nothing logged yet.
+
+              </div>
+            `
+        }
+
+      </div>
+
+    </main>
+  `;
+
+  babySelect.value = baby.id;
+
+  babySelect.onchange =
+    async () => {
+
+      baby =
+        babies.find(
+          b => b.id === babySelect.value
+        );
+
+      await loadData();
+
+      render();
+    };
+}
+
+function changeDate(amount) {
+
+  const date =
+    new Date(
+      selectedDate + "T12:00"
+    );
+
+  date.setDate(
+    date.getDate() + amount
+  );
+
+  selectedDate =
+    getLocalDate(date);
+
+  render();
+}
+
+async function startTracking(type) {
+
+  const active =
+    entries.find(
+      e =>
+        !e.end_at &&
+        (
+          e.type === "feed" ||
+          e.type === "sleep"
+        )
+    );
+
+  if (active) {
+    stopTracking(active.id);
+    return;
+  }
+
+  if (type === "feed") {
+
+    showModal(`
+
+      <h2>
+        Start Feeding
+      </h2>
+
+      <button
+        class="primary"
+        onclick="
+          startLive(
+            'feed',
+            {
+              method:'breast',
+              side:'both'
+            }
+          )
+        ">
+
+        🤱 Breastfeeding
+
+      </button>
+
+      <button
+        class="secondary"
+        onclick="
+          startLive(
+            'feed',
+            {
+              method:'bottle',
+              source:'breastmilk',
+              amount:0
+            }
+          )
+        ">
+
+        🍼 Bottle
+
+      </button>
+
+      <button
+        class="secondary"
+        onclick="closeModal()">
+
+        Cancel
+
+      </button>
+
+    `);
+
+  } else {
+
+    showModal(`
+
+      <h2>
+        Start Sleep
+      </h2>
+
+      <button
+        class="primary"
+        onclick="
+          startLive(
+            'sleep',
+            {
+              category:'nap'
+            }
+          )
+        ">
+
+        ☀️ Nap
+
+      </button>
+
+      <button
+        class="secondary"
+        onclick="
+          startLive(
+            'sleep',
+            {
+              category:'night'
+            }
+          )
+        ">
+
+        🌙 Night sleep
+
+      </button>
+
+      <button
+        class="secondary"
+        onclick="closeModal()">
+
+        Cancel
+
+      </button>
+
+    `);
+  }
+}
+
+async function startLive(type, details) {
+
+  const result =
+    await db
+      .from("baby_entries")
+      .insert({
+
+        baby_id: baby.id,
+
+        user_id: user.id,
+
+        type,
+
+        start_at:
+          new Date().toISOString(),
+
+        details
+
+      });
+
+  if (result.error) {
+    alert(result.error.message);
+    return;
+  }
+
+  closeModal();
+
+  await loadData();
+
+  render();
+}
+
+async function stopTracking(id) {
+
+  const entry =
+    entries.find(
+      e => e.id === id
+    );
+
+  const end =
+    new Date().toISOString();
+
+  const d =
+    getDetails(entry);
+
+  let extra = "";
+
+  if (
+    entry.type === "feed" &&
+    d.method === "bottle"
+  ) {
+
+    extra = `
+
+      <div class="field">
+
+        <label>
+          Amount (oz)
+        </label>
+
+        <input
+          id="finishAmount"
+          type="number"
+          step="0.1">
+
+      </div>
+
+    `;
+  }
+
+  if (
+    entry.type === "feed" &&
+    d.method === "breast"
+  ) {
+
+    extra = `
+
+      <div class="field">
+
+        <label>
+          Breast
+        </label>
+
+        <div
+          class="segment"
+          id="finishSide">
+
+          <button data-value="left">
+            Left
+          </button>
+
+          <button data-value="right">
+            Right
+          </button>
+
+          <button
+            data-value="both"
+            class="selected">
+
+            Both
+
+          </button>
+
+        </div>
+
+      </div>
+
+    `;
+  }
+
+  showModal(`
+
+    <h2>
+      ${entryTitle(entry)} finished
+    </h2>
+
+    <p class="muted">
+
+      ${duration(
+        new Date(end) -
+        new Date(entry.start_at)
+      )}
+
+    </p>
+
+    ${extra}
+
+    <button
+      class="primary"
+      onclick="
+        finishTracking(
+          '${id}',
+          '${end}'
+        )
+      ">
+
+      Save
+
+    </button>
+
+  `);
+
+  document
+    .querySelectorAll(
+      "#finishSide button"
+    )
+    .forEach(button => {
+
+      button.onclick = () => {
+
+        document
+          .querySelectorAll(
+            "#finishSide button"
+          )
+          .forEach(b =>
+            b.classList.remove(
+              "selected"
+            )
+          );
+
+        button.classList.add(
+          "selected"
+        );
+      };
+
+    });
+}
+
+async function finishTracking(id, end) {
+
+  const entry =
+    entries.find(
+      e => e.id === id
+    );
+
+  const d =
+    getDetails(entry);
+
+  if (
+    entry.type === "feed" &&
+    d.method === "bottle"
+  ) {
+
+    d.amount =
+      Number(
+        finishAmount.value || 0
+      );
+  }
+
+  if (
+    entry.type === "feed" &&
+    d.method === "breast"
+  ) {
+
+    d.side =
+      document
+        .querySelector(
+          "#finishSide .selected"
+        )
+        ?.dataset.value ||
+      "both";
+  }
+
+  const result =
+    await db
+      .from("baby_entries")
+      .update({
+        end_at: end,
+        details: d
+      })
+      .eq("id", id);
+
+  if (result.error) {
+    alert(result.error.message);
+    return;
+  }
+
+  closeModal();
+
+  await loadData();
+
+  render();
+}
+
+function showModal(html) {
+
+  sheet.innerHTML = html;
+
+  modal.style.display = "flex";
+}
+
+function closeModal() {
+
+  modal.style.display = "none";
+}
+
+function simpleForm(type, existing = null) {
+
+  const d =
+    getDetails(existing || {});
+
+  let html = `
+
+    <h2>
+      ${existing ? "Edit " : "Log "}
+      ${type}
+    </h2>
+
+    <div class="field">
+
+      <label>
+        Date & time
+      </label>
+
+      <input
+        id="simpleWhen"
+        type="datetime-local"
+        value="${
+          existing
+            ? dateTimeInput(
+                new Date(
+                  existing.start_at
+                )
+              )
+            : dateTimeInput()
+        }">
+
+    </div>
+
+  `;
+
+  if (type === "diaper") {
+
+    html += `
+
+      <div class="field">
+
+        <label>
+          Type
+        </label>
+
+        <div
+          class="segment"
+          id="diaperType">
+
+          <button data-value="wet">
+            Wet
+          </button>
+
+          <button data-value="dirty">
+            Dirty
+          </button>
+
+          <button data-value="both">
+            Both
+          </button>
+
+        </div>
+
+      </div>
+
+    `;
+  }
+
+  if (type === "medication") {
+
+    html += `
+
+      <div class="field">
+
+        <label>
+          Medication
+        </label>
+
+        <input
+          id="medicationName"
+          value="${d.name || ""}">
+
+      </div>
+
+      <div class="field">
+
+        <label>
+          Dose
+        </label>
+
+        <input
+          id="medicationDose"
+          type="number"
+          step="0.01"
+          value="${d.dose || ""}">
+
+      </div>
+
+      <div class="field">
+
+        <label>
+          Unit
+        </label>
+
+        <select id="medicationUnit">
+
+          <option>mL</option>
+          <option>mg</option>
+          <option>tsp</option>
+          <option>tablet</option>
+          <option>other</option>
+
+        </select>
+
+      </div>
+
+    `;
+  }
+
+  if (type === "mood") {
+
+    html += `
+
+      <div class="field">
+
+        <label>
+          Mood
+        </label>
+
+        <div
+          class="segment"
+          id="moodType">
+
+          <button data-value="😍 Great">
+            😍
+          </button>
+
+          <button data-value="😊 Happy">
+            😊
+          </button>
+
+          <button data-value="😐 Neutral">
+            😐
+          </button>
+
+          <button data-value="😢 Fussy">
+            😢
+          </button>
+
+          <button data-value="😭 Very upset">
+            😭
+          </button>
+
+        </div>
+
+      </div>
+
+    `;
+  }
+
+  html += `
+
+    <div class="field">
+
+      <label>
+        Notes
+      </label>
+
+      <textarea id="simpleNotes">${
+        existing?.notes || ""
+      }</textarea>
+
+    </div>
+
+    <button
+      class="primary"
+      onclick="
+        saveSimple(
+          '${type}',
+          '${existing?.id || ""}'
+        )
+      ">
+
+      Save
+
+    </button>
+
+    <button
+      class="secondary"
+      onclick="closeModal()">
+
+      Cancel
+
+    </button>
+
+  `;
+
+  showModal(html);
+
+  if (type === "diaper") {
+    setupSegment(
+      "diaperType",
+      d.kind || "wet"
+    );
+  }
+
+  if (type === "mood") {
+    setupSegment(
+      "moodType",
+      d.mood || "😊 Happy"
+    );
+  }
+}
+
+function setupSegment(id, selected) {
+
+  document
+    .querySelectorAll(
+      "#" + id + " button"
+    )
+    .forEach(button => {
+
+      button.classList.toggle(
+        "selected",
+        button.dataset.value === selected
+      );
+
+      button.onclick = () => {
+
+        document
+          .querySelectorAll(
+            "#" + id + " button"
+          )
+          .forEach(b =>
+            b.classList.remove(
+              "selected"
+            )
+          );
+
+        button.classList.add(
+          "selected"
+        );
+      };
+
+    });
+}
+
+async function saveSimple(type, id) {
+
+  const details = {};
+
+  if (type === "diaper") {
+
+    details.kind =
+      document
+        .querySelector(
+          "#diaperType .selected"
+        )
+        ?.dataset.value ||
+      "wet";
+  }
+
+  if (type === "medication") {
+
+    details.name =
+      medicationName.value;
+
+    details.dose =
+      Number(
+        medicationDose.value || 0
+      );
+
+    details.unit =
+      medicationUnit.value;
+  }
+
+  if (type === "mood") {
+
+    details.mood =
+      document
+        .querySelector(
+          "#moodType .selected"
+        )
+        ?.dataset.value ||
+      "😊 Happy";
+  }
+
+  const payload = {
+
+    baby_id: baby.id,
+
+    user_id: user.id,
+
+    type,
+
+    start_at:
+      new Date(
+        simpleWhen.value
+      ).toISOString(),
+
+    details,
+
+    notes:
+      simpleNotes.value
+
+  };
+
+  let result;
+
+  if (id) {
+
+    result =
+      await db
+        .from("baby_entries")
+        .update(payload)
+        .eq("id", id);
+
+  } else {
+
+    result =
+      await db
+        .from("baby_entries")
+        .insert(payload);
+
+  }
+
+  if (result.error) {
+
+    alert(result.error.message);
+
+    return;
+  }
+
+  closeModal();
+
+  await loadData();
+
+  render();
+}
+
+function editEntry(id) {
+
+  const entry =
+    entries.find(
+      e => e.id === id
+    );
+
+  if (!entry) return;
+
+  if (entry.type === "feed") {
+
+    editFeeding(entry);
+
+  } else if (entry.type === "sleep") {
+
+    editSleep(entry);
+
+  } else {
+
+    simpleForm(
+      entry.type,
+      entry
+    );
+  }
+}
+
+function editFeeding(entry) {
+
+  const d =
+    getDetails(entry);
+
+  let method =
+    d.method || "bottle";
+
+  showModal(`
+
+    <h2>
+      Edit Feeding
+    </h2>
+
+    <div class="field">
+
+      <label>
+        Feeding type
+      </label>
+
+      <div
+        class="segment"
+        id="feedingType">
+
+        <button data-value="bottle">
+          Bottle
+        </button>
+
+        <button data-value="breast">
+          Breast
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="field">
+
+      <label>
+        Start
+      </label>
+
+      <input
+        id="feedingStart"
+        type="datetime-local"
+        value="${dateTimeInput(
+          new Date(entry.start_at)
+        )}">
+
+    </div>
+
+    <div class="field">
+
+      <label>
+        End
+      </label>
+
+      <input
+        id="feedingEnd"
+        type="datetime-local"
+        value="${
+          entry.end_at
+            ? dateTimeInput(
+                new Date(
+                  entry.end_at
+                )
+              )
+            : ""
+        }">
+
+    </div>
+
+    <div id="feedingFields"></div>
+
+    <button
+      class="primary"
+      onclick="
+        saveFeeding(
+          '${entry.id}'
+        )
+      ">
+
+      Save
+
+    </button>
+
+  `);
+
+  setupSegment(
+    "feedingType",
+    method
+  );
+
+  function fields() {
+
+    if (method === "bottle") {
+
+      feedingFields.innerHTML = `
+
+        <div class="field">
+
+          <label>
+            Amount (oz)
+          </label>
+
+          <input
+            id="feedingAmount"
+            type="number"
+            step="0.1"
+            value="${d.amount || ""}">
+
+        </div>
+
+        <div class="field">
+
+          <label>
+            Source
+          </label>
+
+          <select id="feedingSource">
+
+            <option value="breastmilk">
+              Breast milk
+            </option>
+
+            <option value="formula">
+              Formula
+            </option>
+
+          </select>
+
+        </div>
+
+      `;
+
+      feedingSource.value =
+        d.source || "breastmilk";
+
+    } else {
+
+      feedingFields.innerHTML = `
+
+        <div class="field">
+
+          <label>
+            Breast
+          </label>
+
+          <div
+            class="segment"
+            id="breastType">
+
+            <button data-value="left">
+              Left
+            </button>
+
+            <button data-value="right">
+              Right
+            </button>
+
+            <button data-value="both">
+              Both
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+      setupSegment(
+        "breastType",
+        d.side || "both"
+      );
+    }
+  }
+
+  fields();
+
+  document
+    .querySelectorAll(
+      "#feedingType button"
+    )
+    .forEach(button => {
+
+      button.onclick = () => {
+
+        method =
+          button.dataset.value;
+
+        setupSegment(
+          "feedingType",
+          method
+        );
+
+        fields();
+      };
+
+    });
+}
+
+async function saveFeeding(id) {
+
+  const method =
+    document
+      .querySelector(
+        "#feedingType .selected"
+      )
+      .dataset.value;
+
+  const details = {
+    method
+  };
+
+  if (method === "bottle") {
+
+    details.amount =
+      Number(
+        feedingAmount.value || 0
+      );
+
+    details.source =
+      feedingSource.value;
+
+  } else {
+
+    details.side =
+      document
+        .querySelector(
+          "#breastType .selected"
+        )
+        ?.dataset.value ||
+      "both";
+  }
+
+  const result =
+    await db
+      .from("baby_entries")
+      .update({
+
+        start_at:
+          new Date(
+            feedingStart.value
+          ).toISOString(),
+
+        end_at:
+          feedingEnd.value
+            ? new Date(
+                feedingEnd.value
+              ).toISOString()
+            : null,
+
+        details
+
+      })
+      .eq("id", id);
+
+  if (result.error) {
+
+    alert(result.error.message);
+
+    return;
+  }
+
+  closeModal();
+
+  await loadData();
+
+  render();
+}
+
+function editSleep(entry) {
+
+  const d =
+    getDetails(entry);
+
+  showModal(`
+
+    <h2>
+      Edit Sleep
+    </h2>
+
+    <div class="field">
+
+      <label>
+        Sleep type
+      </label>
+
+      <div
+        class="segment"
+        id="sleepType">
+
+        <button data-value="nap">
+          Nap
+        </button>
+
+        <button data-value="night">
+          Night
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="field">
+
+      <label>
+        Start
+      </label>
+
+      <input
+        id="sleepStart"
+        type="datetime-local"
+        value="${dateTimeInput(
+          new Date(entry.start_at)
+        )}">
+
+    </div>
+
+    <div class="field">
+
+      <label>
+        End
+      </label>
+
+      <input
+        id="sleepEnd"
+        type="datetime-local"
+        value="${
+          entry.end_at
+            ? dateTimeInput(
+                new Date(
+                  entry.end_at
+                )
+              )
+            : ""
+        }">
+
+    </div>
+
+    <button
+      class="primary"
+      onclick="
+        saveSleep(
+          '${entry.id}'
+        )
+      ">
+
+      Save
+
+    </button>
+
+  `);
+
+  setupSegment(
+    "sleepType",
+    d.category || "nap"
+  );
+}
+
+async function saveSleep(id) {
+
+  const result =
+    await db
+      .from("baby_entries")
+      .update({
+
+        start_at:
+          new Date(
+            sleepStart.value
+          ).toISOString(),
+
+        end_at:
+          sleepEnd.value
+            ? new Date(
+                sleepEnd.value
+              ).toISOString()
+            : null,
+
+        details: {
+          category:
+            document
+              .querySelector(
+                "#sleepType .selected"
+              )
+              .dataset.value
+        }
+
+      })
+      .eq("id", id);
+
+  if (result.error) {
+
+    alert(result.error.message);
+
+    return;
+  }
+
+  closeModal();
+
+  await loadData();
+
+  render();
+}
+
+async function deleteEntry(id) {
+
+  if (
+    !confirm(
+      "Delete this entry?"
+    )
+  ) {
+    return;
+  }
+
+  const result =
+    await db
+      .from("baby_entries")
+      .delete()
+      .eq("id", id);
+
+  if (result.error) {
+
+    alert(result.error.message);
+
+    return;
+  }
+
+  await loadData();
+
+  render();
+}
+
+function renderHistory() {
+
+  const list =
+    entriesForDate();
+
+  root.innerHTML = `
+
+    <main class="app">
+
+      <h1>
+        History
+      </h1>
+
+      <p class="muted">
+        ${baby.name}
+      </p>
+
+      <div class="card">
+
+        <div class="row">
+
+          <button
+            onclick="changeDate(-1)">
+            ‹
+          </button>
+
+          <b>
+            ${selectedDate}
+          </b>
+
+          <button
+            onclick="changeDate(1)">
+            ›
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="card">
+
+        ${
+          list.length
+            ? list.map(entryHTML).join("")
+            : `
+              <div class="muted">
+                No entries for this day.
+              </div>
+            `
+        }
+
+      </div>
+
+    </main>
+  `;
+}
+
+function renderSettings() {
+
+  root.innerHTML = `
+
+    <main class="app">
+
+      <h1>
+        Settings
+      </h1>
+
+      <div class="card">
+
+        <h3>
+          ${baby.name}
+        </h3>
+
+        <p class="muted">
+          Invite the other parent using this code:
+        </p>
+
+        <h2
+          style="
+            text-align:center;
+            letter-spacing:4px;
+          ">
+
+          ${baby.invite_code}
+
+        </h2>
+
+        <p class="muted">
+
+          The other parent creates their own
+          account and chooses
+          "Join with invite code."
+
+        </p>
+
+      </div>
+
+      <div class="card">
+
+        <button
+          class="secondary"
+          onclick="
+            db.auth.signOut()
+          ">
+
+          Sign out
+
+        </button>
+
+      </div>
+
+    </main>
+  `;
+}
+
+document
+  .querySelectorAll(
+    ".tabs button"
+  )
+  .forEach(button => {
+
+    button.onclick = () => {
+
+      currentTab =
+        button.dataset.tab;
+
+      render();
+    };
+
+  });
+
+db.auth
+  .getSession()
+  .then(async result => {
+
+    user =
+      result.data.session?.user;
+
+    if (!user) {
+
+      showAuth();
+
+      return;
+    }
+
+    await loadData();
+
+    if (babies.length) {
+
+      startApp();
+
+    } else {
+
+      showBabySetup();
+    }
+
+  });
+
+db.auth.onAuthStateChange(
+  async (event, session) => {
+
+    if (
+      session?.user &&
+      !user
+    ) {
+
+      user =
+        session.user;
+
+      await loadData();
+
+      if (babies.length) {
+
+        startApp();
+
+      } else {
+
+        showBabySetup();
+      }
+    }
+
+  }
+);
+
 </script>
-</body></html>
+
+</body>
+</html>
