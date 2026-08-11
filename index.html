@@ -721,18 +721,10 @@ function showBabySetup() {
 async function createBaby() {
 
   const result =
-    await db
-      .from("babies")
-      .insert({
-        name:
-          newBabyName.value ||
-          "Baby",
-
-        created_by:
-          user.id
-      })
-      .select()
-      .single();
+    await db.rpc("create_baby", {
+      p_name:
+        newBabyName.value || "Baby"
+    });
 
   if (result.error) {
     alert(result.error.message);
