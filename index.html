@@ -742,7 +742,9 @@ async function joinBaby() {
     "Enter the invite code from the other parent:"
   );
 
-  if (!code) return;
+  if (!code || !code.trim()) {
+    return;
+  }
 
   const result = await db.rpc("join_baby", {
     p_invite_code: code.trim()
@@ -752,6 +754,10 @@ async function joinBaby() {
     alert(result.error.message);
     return;
   }
+
+  await loadData();
+
+  baby = result.data;
 
   await loadData();
 
